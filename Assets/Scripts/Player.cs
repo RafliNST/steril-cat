@@ -1,40 +1,52 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
     public PlayerInput _input;
-    Rigidbody2D physicsComp;
     public float speedForce, maxSpeed;
 
-    [SerializeField] GameObject pointerHand;
+    Rigidbody2D physicsComp;
+    Animator animator;
+
+    #region Event Action
+    public static UnityEvent<string> onAnimationPlay;
+    public static UnityEvent onAnimationFinishied;
+    #endregion
 
     private void Awake()
     {
         physicsComp = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
+    }
+
+    private void Start()
+    {
+        onAnimationPlay = new UnityEvent<string>();
+        onAnimationFinishied = new UnityEvent();
+
+        onAnimationPlay.AddListener(AnimationInvoke);
     }
 
     private void Update()
     {
         physicsComp.transform.position += Movement() * speedForce * Time.deltaTime;
-        //PointingAtMouse();
+    }
+
+    private void AnimationInvoke(string triggerName)
+    {
+        animator.SetTrigger(triggerName);
+    }
+
+    public void AnimationEnd()
+    {
+        onAnimationFinishied?.Invoke();
     }
 
     private Vector3 Movement()
     {
         return _input.moveAction.ReadValue<Vector2>();
-    }
-
-    float PointingAtMouse()
-    {
-        Vector3 mouse = Input.mousePosition;
-        Vector3 mousePos = Camera.main.ScreenToWorldPoint(mouse);
-
-        Vector3 rotation = mousePos - transform.position;
-
-        float rotZ = Mathf.Atan2(rotation.y, rotation.x) * Mathf.Rad2Deg;
-
-        pointerHand.transform.localRotation = Quaternion.Euler(0,0,rotZ);
-        return rotZ;
-    }
+    }    
 }

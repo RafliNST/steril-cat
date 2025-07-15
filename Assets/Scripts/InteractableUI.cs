@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -101,7 +102,7 @@ public class InteractableUI : MonoBehaviour
         color.a = visibilityThreshold;
         spriteRenderers[(int)currentIcon].color = color;
 
-        currentIcon = Mathf.Clamp(currentIcon + _input.iconChangeAction.ReadValue<float>(), 0, Mathf.Clamp01(showedIcon-1));
+        currentIcon = Mathf.Clamp(currentIcon + ctx.ReadValue<float>(), 0, Mathf.Clamp01(showedIcon-1));
         transform.localPosition = new Vector3(-(currentIcon + (currentIcon * xGap)), yOffset, 0);
 
         color.a = 1f;
